@@ -62,51 +62,71 @@ Heat::Heat() {
 
 
 class HeatManager {
-public:
 	vector <Heat> heatList;
 	int currentHeat;
+	public:
 	vector<Heat> getHeats() {
 		return this->heatList;
 	}
-	Heat getCurrent() {
-		return this->heatList.at(this->currentHeat);
+	int getCurrent() {
+		return this->currentHeat;
 	}
 	void setCurrent(int n) {
-		this->currentHeat = n;
+		if(n<0){
+			return;
+		}
+		if (n < this->heatList.size()){
+			cout<<"setting current heat to index "<<n<<" in vector of size "<<this->heatList.size()<<endl;
+			this->currentHeat = n;
+		}else{
+			this->currentHeat = 0;
+		}
+		
 	}
-	Heat getNext() {
-		return this->heatList.at(this->currentHeat + 1);
+	Heat getHeatbyIndex(int n) {
+		if (n<0) return this->heatList.at(0);
+		if(n < this->heatList.size()){
+		return this->heatList.at(n);
+		}else{
+			return this->heatList.at(this->getCurrent());
+		}
 	}
 	void setHeats(int numP) {
 		int remaining = numP % 16;
-		this->heatList.resize(numP/16);
+		this->setCurrent(1);
 		if (numP < 6) {
 			return;
 		}
 		else {
 			if (remaining != 0) {
 				int heats = (numP / 16) + 1;
+				//this->heatList.resize(heats/2);
 				int diff = (numP%heats);
 				cout<<"number of heats "<<heats<<endl;
 				for (int x = 1; x <= heats; x++) {
 					Heat *nextHeat = new Heat();
 					if (x <= diff) {
 						nextHeat->setNumRacers(numP / heats + 1);
+						nextHeat->setNum(x);
+						cout<<nextHeat->getNum()<<endl;
 					}
 					else {
 						nextHeat->setNumRacers(numP / heats);
+						nextHeat->setNum(x);
 					}
 					cout<<"writing heat number: "<< x <<" with "<<nextHeat->getNumRacers()<<" racers"<<endl;
-					this->heatList.insert(this->heatList.begin() + x, *nextHeat);
+					this->heatList.push_back( *nextHeat);
 					delete nextHeat;
 					nextHeat = NULL;
 				}
 			}
 			else {
 				int heats = numP / 16;
+				this->heatList.resize(heats/2);
 				for (int i = 1; i <= heats; i++) {
 					Heat *evenHeat = new Heat();
 					evenHeat->setNumRacers(16);
+					evenHeat->setNum(i);
 					this->heatList.insert(this->heatList.begin() + i, *evenHeat);
 					cout<<"writing heat number: "<< i <<" with "<<evenHeat->getNumRacers()<<" racers"<<endl;
 					delete evenHeat;
