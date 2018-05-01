@@ -7,126 +7,109 @@
 using namespace std;
 
 
-class Heat {
-
+class Race {
+public:
 	int numRacers;
 	int heatNum;
-	bool finished;
 	vector <int> racerList;
-	public:
-	bool getFinished(){
-		return this->finished;
-	}
-	void setFinished(bool f){
-		this->finished = f;
-	}
 	int getNumRacers();
 	void setNumRacers(int n);
 	vector <int> getRacerList();
 	void addRacer(int n);
 	int getNum();
 	void setNum(int n);
-	Heat();
+	Race();
 };
 
 
-int Heat::getNum() {
+int Race::getNum() {
 	return this->heatNum;
 }
 
-void Heat::setNum(int n) {
+void Race::setNum(int n) {
 	this->heatNum = n;
 }
 
-int Heat::getNumRacers() {
+int Race::getNumRacers() {
 	return this->numRacers;
 }
 
-void Heat::setNumRacers(int n) {
+void Race::setNumRacers(int n) {
 	this->numRacers = n;
 }
 
-vector<int> Heat::getRacerList() {
+vector<int> Race::getRacerList() {
 	return this->racerList;
 }
 
-void Heat::addRacer(int n) {
+void Race::addRacer(int n) {
 	this->numRacers += 1;
 	this->racerList.push_back(n);
 }
 
-Heat::Heat() {
+Race::Race() {
 
 }
-
-
+class Heat: public Race {
+	
+};
+class Main: public Race {
+	string mainIDs;
+	public:
+	Main(){
+		this->mainIDs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	}
+	char get_MainID(){
+		return this->mainIDs.at(this->heatNum);
+	}
+};
 
 class HeatManager {
 	vector <Heat> heatList;
 	int currentHeat;
-	public:
+public:
 	vector<Heat> getHeats() {
 		return this->heatList;
 	}
-	int getCurrent() {
-		return this->currentHeat;
+	Heat getCurrent() {
+		return this->heatList.at(this->currentHeat);
 	}
 	void setCurrent(int n) {
-		if(n<0){
-			return;
-		}
-		if (n < this->heatList.size()){
-			cout<<"setting current heat to index "<<n<<" in vector of size "<<this->heatList.size()<<endl;
-			this->currentHeat = n;
-		}else{
-			this->currentHeat = 0;
-		}
-		
+		this->currentHeat = n;
 	}
-	Heat getHeatbyIndex(int n) {
-		if (n<0) return this->heatList.at(0);
-		if(n < this->heatList.size()){
-		return this->heatList.at(n);
-		}else{
-			return this->heatList.at(this->getCurrent());
-		}
+	Heat getNext() {
+		return this->heatList.at(this->currentHeat + 1);
 	}
 	void setHeats(int numP) {
 		int remaining = numP % 16;
-		this->setCurrent(1);
+		this->heatList.resize(numP/16);
 		if (numP < 6) {
 			return;
 		}
 		else {
 			if (remaining != 0) {
 				int heats = (numP / 16) + 1;
-				//this->heatList.resize(heats/2);
 				int diff = (numP%heats);
 				cout<<"number of heats "<<heats<<endl;
 				for (int x = 1; x <= heats; x++) {
 					Heat *nextHeat = new Heat();
 					if (x <= diff) {
 						nextHeat->setNumRacers(numP / heats + 1);
-						nextHeat->setNum(x);
-						cout<<nextHeat->getNum()<<endl;
 					}
 					else {
 						nextHeat->setNumRacers(numP / heats);
-						nextHeat->setNum(x);
 					}
 					cout<<"writing heat number: "<< x <<" with "<<nextHeat->getNumRacers()<<" racers"<<endl;
-					this->heatList.push_back( *nextHeat);
+					this->heatList.insert(this->heatList.begin() + x, *nextHeat);
 					delete nextHeat;
 					nextHeat = NULL;
 				}
 			}
 			else {
 				int heats = numP / 16;
-				this->heatList.resize(heats/2);
 				for (int i = 1; i <= heats; i++) {
 					Heat *evenHeat = new Heat();
 					evenHeat->setNumRacers(16);
-					evenHeat->setNum(i);
 					this->heatList.insert(this->heatList.begin() + i, *evenHeat);
 					cout<<"writing heat number: "<< i <<" with "<<evenHeat->getNumRacers()<<" racers"<<endl;
 					delete evenHeat;
@@ -138,4 +121,20 @@ class HeatManager {
 	HeatManager() {
 	}
 
+};
+
+class MainManager{
+	int currentMain;
+	vector <Main> mains;
+	public:
+	Main getCurrent(){
+		return this->mains.at(this->currentMain);
+	}
+	void setCurrent(int c){
+		this->currentMain = c;
+	}
+	void addRace(Main r){
+		r.heatNum = this->mains.size() + 1;
+		this->mains.push_back(r);
+	}
 };
