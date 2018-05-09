@@ -21,27 +21,39 @@ class Graph{
         for(int k = 0; k < this->stations; k++){
             for(int i =0; i < this->stations; i++){
                 for(int j = 0; j<this->stations; j++){
-                    if((this->shorts[i][j] > this->graph[i][k]+this->graph[k][j] and this->graph[i][k] != infinity and this->graph[k][j] !=infinity) and (this->graph[i][k] != -1 or this->graph[k][j] != -1)){
-                        this->shorts[i][j] = this->graph[i][k]+this->graph[k][j];
+                    if((this->graph[i][j] > this->graph[i][k]+this->graph[k][j] and this->graph[i][k] != infinity and this->graph[k][j] !=infinity) and (this->graph[i][k] != -1 or this->graph[k][j] != -1)){
+                        this->graph[i][j] = this->graph[i][k]+this->graph[k][j];
+                        this->shorts[i][j] = this->graph[i][k];
                     }
                 }
             }
         }
     }
+    vector<int> getPath(int s, int e){
+        vector<int> path;
+        if(this->shorts[s][e] == -1){
+            return path;
+        }
+        while(s != e){
+            s = this->shorts[s][e];
+            path.push_back(s);
+        }
+        return path;
+    }
     int shortestPath(int src, int dest){
         this->calcShortestPaths();
-        return this->shorts[src][dest];
+        return this->graph[src][dest];
     }
     int searchPaths(int from, int to){
         int w;
         w = 0;
-        if(this->graph[from][to] != -1){
+        if(this->graph[from][to] != infinity){
             w += this->graph[from][to];
             return w;
         } else {
             for (int x = 0; x < this->stations; x++){
                 int k = this->graph[from][x];
-                if( k != -1){
+                if( k != infinity){
                     int depth = this->searchPaths(x,to);
                     if(depth > 0){
                         return w+depth+k;
@@ -53,7 +65,7 @@ class Graph{
         }
     }
     bool isPath(int from, int to){
-        if(searchPaths(from, to) > 0){
+        if(searchPaths(from, to)<infinity){
             return true;
         }
         return false;
@@ -64,8 +76,8 @@ Graph::Graph(int r, int s){
     this->routes = r;
     for (int i = 0; i < s; i++){
         for (int x = 0; x < s; x++){
-            this->graph[i][x] = -1;
-            this->shorts[i][x] = infinity;
+            this->shorts[i][x] = -1;
+            this->graph[i][x] = infinity;
         }
     }
 }
@@ -79,6 +91,7 @@ void queryRoutes(Graph *g, bool shortest){
     string start;
     string end;
     map<string, int> index;
+    map<int, string> revindex;
     string line;
     string tempS;
     int tempI;
@@ -88,6 +101,7 @@ void queryRoutes(Graph *g, bool shortest){
         stringstream p(line);
         p>>tempI>>tempS;
         index.insert(make_pair(tempS, tempI));
+        revindex.insert(make_pair(tempI, tempS));
         cout<<"made pair "<<tempS<<"->"<<tempI<<endl;
     }
     string cont;
@@ -96,8 +110,13 @@ void queryRoutes(Graph *g, bool shortest){
     cout <<"Where would you like to end?"<< endl;
     cin>>end;
     int pathLength = shortest ? g->shortestPath(index[start], index[end]) : g->searchPaths(index[start], index[end]);
-    if(pathLength > 0 and pathLength != infinity){
-        cout<<"Yes you would be able to travel the (weight = "<<pathLength<<") route from station "<<start<<" to station "<< end<<"."<<endl;
+    if(pathLength < infinity and pathLength != infinity){
+        vector<int> routes = g->getPath(index[start], index[end]);
+        cout<<"Your path will be "<<endl;
+        for(int i = 0; i < routes.size(); i++){
+            cout<<"-> "<<revindex[routes[i]]<<endl;
+        }
+        cout<<endl;
     } else {
         cout<<"No you would not be able to travel from station "<<start<<" to station "<< end<<"."<<endl;
     }
