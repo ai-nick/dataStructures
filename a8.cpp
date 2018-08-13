@@ -21,7 +21,10 @@ class Graph{
         for(int k = 0; k < this->stations; k++){
             for(int i =0; i < this->stations; i++){
                 for(int j = 0; j<this->stations; j++){
-                    if((this->graph[i][j] > this->graph[i][k]+this->graph[k][j] and this->graph[i][k] != infinity and this->graph[k][j] !=infinity) and (this->graph[i][k] != -1 or this->graph[k][j] != -1)){
+                    if((this->graph[i][j] > this->graph[i][k]+this->graph[k][j] 
+                        and this->graph[i][k] != infinity 
+                        and this->graph[k][j] !=infinity) 
+                        and (this->graph[i][k] != -1 or this->graph[k][j] != -1)){
                         this->graph[i][j] = this->graph[i][k]+this->graph[k][j];
                         this->shorts[i][j] = this->graph[i][k];
                     }
